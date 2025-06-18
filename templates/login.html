@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center align-items-center vh-100">
+  <div class="col-md-5">
+    <div class="card shadow-lg border-0">
+      <div class="card-header bg-primary text-white text-center">
+        <h4 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> Login to Your Account</h4>
+      </div>
+      <div class="card-body">
+        {% if error %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endif %}
+
+        <form method="post" novalidate onsubmit="return validateForm();">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+              <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+              <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
+              <span class="input-group-text">
+                <i class="bi bi-eye-slash" id="togglePassword" style="cursor: pointer;"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="rememberMe">
+            <label class="form-check-label" for="rememberMe">Remember me</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+          </button>
+        </form>
+      </div>
+      <div class="card-footer text-center">
+        <small class="text-muted">Don't have an account? <a href="{{ url_for('register') }}">Register here</a></small>
+        <br><small><a href="#" class="text-decoration-none">Forgot password?</a></small>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Toggle password visibility
+  document.getElementById("togglePassword").addEventListener("click", function () {
+    const passwordInput = document.getElementById("password");
+    const icon = this;
+    const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+    passwordInput.setAttribute("type", type);
+    icon.classList.toggle("bi-eye");
+    icon.classList.toggle("bi-eye-slash");
+  });
+
+  // Simple form validation feedback
+  function validateForm() {
+    const username = document.getElementById("username");
+    const password = document.getElementById("password");
+    if (!username.value.trim() || !password.value.trim()) {
+      alert("Please fill in all fields.");
+      return false;
+    }
+    return true;
+  }
+</script>
+{% endblock %}

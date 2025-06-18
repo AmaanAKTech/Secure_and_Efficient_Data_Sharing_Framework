@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+    <span class="badge bg-success fs-6">Welcome, {{ session.get('username') }}</span>
+  </div>
+
+  <!-- Statistic Cards -->
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card text-center border-0 shadow-sm h-100">
+        <div class="card-body">
+          <i class="bi bi-folder-fill display-4 text-primary mb-2"></i>
+          <h6 class="text-muted">Total Files</h6>
+          <h3 class="fw-bold text-primary">{{ total_files }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center border-0 shadow-sm h-100">
+        <div class="card-body">
+          <i class="bi bi-hdd-fill display-4 text-warning mb-2"></i>
+          <h6 class="text-muted">Storage Used</h6>
+          <h3 class="fw-bold text-warning">{{ storage_used }} MB</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center border-0 shadow-sm h-100">
+        <div class="card-body">
+          <i class="bi bi-person-fill display-4 text-success mb-2"></i>
+          <h6 class="text-muted">User</h6>
+          <h3 class="fw-bold text-success">{{ session.get('username') }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graphs Section -->
+  <div class="row mt-5 g-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-gradient bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-graph-up-arrow"></i> Upload Trend</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="trendChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-gradient bg-danger text-white">
+          <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> File Type Distribution</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="fileTypesChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctxTrend = document.getElementById('trendChart').getContext('2d');
+  const trendChart = new Chart(ctxTrend, {
+    type: 'line',
+    data: {
+      labels: {{ trend_labels | tojson }},
+      datasets: [{
+        label: 'Uploads',
+        data: {{ trend_data | tojson }},
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        tension: 0.3,
+        fill: true,
+        pointRadius: 4,
+        pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  const ctxTypes = document.getElementById('fileTypesChart').getContext('2d');
+  const fileTypesChart = new Chart(ctxTypes, {
+    type: 'doughnut',
+    data: {
+      labels: {{ file_types_labels | tojson }},
+      datasets: [{
+        data: {{ file_types_data | tojson }},
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.6)',
+          'rgba(54, 162, 235, 0.6)',
+          'rgba(255, 206, 86, 0.6)',
+          'rgba(75, 192, 192, 0.6)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: {
+          label: function(context) {
+            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+            const value = context.raw;
+            const percent = ((value / total) * 100).toFixed(1);
+            return `${context.label}: ${value} (${percent}%)`;
+          }
+        }}
+      }
+    }
+  });
+</script>
+{% endblock %}

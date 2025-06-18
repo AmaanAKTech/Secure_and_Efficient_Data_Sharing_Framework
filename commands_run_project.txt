@@ -1,0 +1,15 @@
+open cmd  in project directory 
+
+
+env\Scripts\activate 
+py app.py  --> web app 
+
+for api 
+
+
+py app_api.py 
+
+
+
+i have added the bookmark
+after running the web app you can click on the bookmark

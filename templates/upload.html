@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-upload"></i> Upload Files</h2>
+    <span class="badge bg-success fs-6">Hi {{ session.get('username', 'User') }}</span>
+  </div>
+
+  <div class="row g-4">
+    <!-- Upload Area -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0"><i class="bi bi-cloud-arrow-up-fill"></i> Upload New File</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data" id="uploadForm">
+            <div class="mb-3">
+              <label for="fileInput" class="form-label">Select file</label>
+              <input class="form-control" type="file" id="fileInput" name="file" required>
+              <small class="text-muted">Allowed: PDF, Images, Videos. Max size: 20MB</small>
+            </div>
+            <div class="mb-3">
+              <progress id="uploadProgress" value="0" max="100" class="w-100" style="display: none;"></progress>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="bi bi-cloud-upload"></i> Upload File
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Drag & Drop -->
+      <div class="card shadow-sm mt-4">
+        <div class="card-body text-center border border-2 border-dashed rounded p-4 bg-light" id="dropZone">
+          <p class="mb-0"><i class="bi bi-box-arrow-in-down display-6"></i></p>
+          <p class="fw-semibold mb-2">Or drag and drop your file here</p>
+          <small class="text-muted">Auto-upload will start when file is dropped</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Files List -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0"><i class="bi bi-folder2-open"></i> Your Files</h5>
+        </div>
+        <div class="card-body">
+          {% if files %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Filename</th>
+                  <th>MD5</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for file in files %}
+                <tr>
+                  <td><i class="bi bi-file-earmark-text"></i> {{ file.original_filename }}</td>
+                  <td><code>{{ file.md5_hash }}</code></td>
+                  <td>
+                    <a href="{{ url_for('retrieve_file', file_id=file.id) }}" class="btn btn-sm btn-info" title="Download">
+                      <i class="bi bi-download"></i>
+                    </a>
+                    <form action="{{ url_for('delete_file', file_id=file.id) }}" method="post" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure?');">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted">You haven’t uploaded any files yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const uploadForm = document.getElementById('uploadForm');
+  const progressBar = document.getElementById('uploadProgress');
+
+  // Drag feedback
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('border-success', 'bg-light');
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('border-success', 'bg-light');
+  });
+
+  // Handle dropped file and trigger upload
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('border-success', 'bg-light');
+    if (e.dataTransfer.files.length) {
+      fileInput.files = e.dataTransfer.files;
+      uploadForm.requestSubmit();
+    }
+  });
+
+  // Simulated progress bar (optional enhancement)
+  uploadForm.addEventListener('submit', () => {
+    progressBar.style.display = 'block';
+    let percent = 0;
+    const interval = setInterval(() => {
+      if (percent >= 100) {
+        clearInterval(interval);
+      } else {
+        percent += 5;
+        progressBar.value = percent;
+      }
+    }, 100);
+  });
+</script>
+{% endblock %}
