@@ -1,15 +1,27 @@
-open cmd  in project directory 
+#### For Windows after installing & Configuring Python.
 
+open cmd  in project directory 
 
 env\Scripts\activate 
 py app.py  --> web app 
 
 for api 
 
-
 py app_api.py 
 
+Run the http link on the web browser.
 
 
-i have added the bookmark
-after running the web app you can click on the bookmark
+
+#### For MacOs after installing Python, Flask and other dependencies such as cryptography.
+
+open terminal
+source venv/bin/activate
+
+Locate the project files, for example if the project is in Downloads and is named Microservices_Python folder then type.
+cd ~/Download/Microservices_Python
+export FLASK_APP=app.py
+export FLASK_ENV=development
+flask run
+
+Run the http link on the web browser.
